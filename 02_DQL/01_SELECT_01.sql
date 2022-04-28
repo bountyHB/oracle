@@ -383,4 +383,3 @@ FROM
 --ORDER BY "연봉" DESC;
 ORDER BY
    1 DESC;
-
