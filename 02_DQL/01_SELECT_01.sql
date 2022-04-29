@@ -2,7 +2,7 @@
 
     <SELECT>
          SELECT   컬럼 [, 컬럼, ...]
-         FROM       테이블명;
+         FROM     테이블명;
         
         - 테이블에서 데이터를 조회할 때 사용하는 SQL 문이다.
         - SELECT를 통해서 조회된 결과를 RESULT SET이라고 한다.
@@ -12,11 +12,13 @@
 */
 -- *는 와일드 카드 : 모든이라는 뜻
 
+
 -- 현재 계정이 소유한 테이블의 목록 조회
 SELECT
    *
 FROM
    TABS; 
+
 
 -- TABLE_NAME 에 있는 행만 보고싶을때
 SELECT
@@ -96,7 +98,7 @@ FROM
 ---------------------------------------------------------------
 /*
     <컬럼의 산술 연산>
-     SELECT 절에 컬럼면 입력 부분에서 산술 연산자를 사용하여 결과를 조회할 수 있다.
+       SELECT 절에 컬럼면 입력 부분에서 산술 연산자를 사용하여 결과를 조회할 수 있다.
 */
 
 -- EMPLOYEE 테이블에서 직원명, 직원의 연봉 (연봉 = 급여 * 12)
@@ -144,12 +146,12 @@ FROM
    EMPLOYEE;
 
 /*
-        <컬럼 별칭>
-            [표현법]
-                 컬럼 AS 별칭 / 컬럼 AS "별칭 / 컬럼 별칭 / 컬럼 "별칭"
-                 
-                 - 산술연산을 하게 되면 컬럼명이 지저분해진다. 이 때 컬럼명에 별칭을 부여해서 깔끔하게 보여줄 수 있다.
-                 - 별칭을 지정할 때 띄어쓰기 혹은 특수문자가 별칭에 포함될 경우에는 반드시 큰 따옴표로 감싸준다.
+    <컬럼 별칭>
+       [표현법]
+         컬럼 AS 별칭 / 컬럼 AS "별칭 / 컬럼 별칭 / 컬럼 "별칭"
+           
+        - 산술연산을 하게 되면 컬럼명이 지저분해진다. 이 때 컬럼명에 별칭을 부여해서 깔끔하게 보여줄 수 있다.
+        - 별칭을 지정할 때 띄어쓰기 혹은 특수문자가 별칭에 포함될 경우에는 반드시 큰 따옴표로 감싸준다.
 */
 
 -- EMPLOYEE 테이블에서 직원명, 연봉, 보너스가 포함된 연봉(급여 + 보너스 * 급여)
@@ -162,9 +164,9 @@ FROM
     
     
 /*
-            <리터럴>
-                SELECT 절에 리터럴을 사용하면 테이블에 존재하는 데이터처럼 조회가 가능하다.
-                즉, 리터럴은 RESULT SET의 모든 행에 반복적으로 출력된다.
+      <리터럴>
+         SELECT 절에 리터럴을 사용하면 테이블에 존재하는 데이터처럼 조회가 가능하다.
+         즉, 리터럴은 RESULT SET의 모든 행에 반복적으로 출력된다.
             
 */
 
@@ -190,12 +192,12 @@ FROM
    EMPLOYEE;
     
     
-    /*
-            <DISTINCT>
-                  컬럼에 포함된 중복 값을 한 번씩만 표시하고자 할 때 사용한다. 
-                  SELECT 절에 한 번만 기술할 수 있다.
-                  컬럼이 여러 개이면 컬럼 값들이 모두 동일해야 중복 값으로 판단되어 중복이 제거된다.
-   */
+/*
+      <DISTINCT>
+        컬럼에 포함된 중복 값을 한 번씩만 표시하고자 할 때 사용한다. 
+        SELECT 절에 한 번만 기술할 수 있다.
+        컬럼이 여러 개이면 컬럼 값들이 모두 동일해야 중복 값으로 판단되어 중복이 제거된다.
+ */
     
     
 --  EMPLOYEE 테이블에서 직급 코드(중복제거) 조회
@@ -215,6 +217,7 @@ FROM
 ORDER BY
    DEPT_CODE DESC; -- 내림차순     
 
+
 -- DISTINCT는 SELECT 절에 한 번만 기술할 수 있다.
 SELECT DISTINCT
    JOB_CODE,
@@ -225,23 +228,25 @@ ORDER BY
    JOB_CODE;
    
    
-   /*
-            <WHERE>
-                     SELECT   컬럼 [, 컬럼, ...]
-                     FROM       테이블명
-                     WHERE    조건식;
+/*
+      <WHERE>
+         SELECT   컬럼 [, 컬럼, ...]
+         FROM     테이블명
+         WHERE    조건식;
             
-            <비교 연산자>
-            > ,  < , >= , <=   :  대소 비교
-            =                            : 같다
-           != , ^= , <>          : 같지 않다
+       <비교 연산자>
+         > ,  < , >= , <=   : 대소 비교
+         =                  : 같다
+         != , ^= , <>       : 같지 않다
 */
+
 
 -- EMPLOYEE 테이블에서 부서 코드가  D9과 일치하는 사원들의 모든 컬럼 조회
 SELECT
    *
 FROM
    EMPLOYEE; -- DEPT_CODE
+
 
 SELECT
    *
@@ -250,11 +255,13 @@ FROM
 WHERE
    DEPT_CODE = 'D9';
 
+
 -- EMPLOYEE 테이블에서 부서 코드가  D9과 일치하는 사원들의 직원명, 부서 코드, 급여
 SELECT
    *
 FROM
    EMPLOYEE; -- EMP_NAME, DEPT_CODE, SALARY
+
 
 SELECT
    EMP_NAME,
@@ -272,6 +279,7 @@ SELECT
 FROM
    EMPLOYEE; --EMP_ID, EMP_NAME, DEPT_CODE
 
+
 SELECT
    EMP_ID,
    EMP_NAME,
@@ -283,11 +291,13 @@ FROM
 WHERE
    DEPT_CODE <> 'D9';
    
+   
 -- EMPLOYEE 테이블에서 급여가 400만원 이상인 직원들의 직원명, 부서 코드, 급여 조회
 SELECT
    *
 FROM
    EMPLOYEE; -- EMP_NAME, DEPT_CODE, SALARY 
+
 
 SELECT
    EMP_NAME  AS "직원명",
@@ -298,11 +308,13 @@ FROM
 WHERE
    SALARY >= 4000000;
 
+
 -- EMPLOYEE 테이블에서 재직 중인 직원들의 사번, 이름, 입사일 조회
 SELECT
    *
 FROM
    EMPLOYEE; -- EMP_ID, EMP_NAME,  HIRE_DATE, ENT_YN
+
 
 SELECT
    EMP_ID    AS "사번",
@@ -322,6 +334,7 @@ SELECT
 FROM
    EMPLOYEE; -- EMP_NAME,  SALARY, SALARY * 12 AS "연봉", HIRE_DATE
 
+
 SELECT
    EMP_NAME    AS "직원명",
    SALARY      AS "급여",
@@ -332,27 +345,29 @@ FROM
 WHERE
    SALARY * 12 >= 50000000;
 
+
 ---------------------------------------------------------------------------------------------------------
 
    /*
-            <ORDER BY>
-                     SELECT          컬럼 [, 컬럼, ...]
-                     FROM              테이블명
-                     WHERE           조건식
-                     ORDER BY     컬럼 | 별칭 | 컬럼 순번   [ASC | DESC]   [NULLS FIRST | NULLS LAST];
+      <ORDER BY>
+          SELECT       컬럼 [, 컬럼, ...]
+          FROM         테이블명
+          WHERE        조건식
+          ORDER BY     컬럼 | 별칭 | 컬럼 순번   [ASC | DESC]   [NULLS FIRST | NULLS LAST];
 
-                     - ASC    : 오름차순 정렬 (ASC, DESC 생략 시 기본값)
-                     - DESC : 내림차순 정렬
-                     - NULL FIRST   : 정렬하고자 하는 컬럼 값에 NULL이 있는 경우 NULL 값을 맨 앞으로 정렬한다. 
-                     - NULL LAST     : 정렬하고자 하는 컬럼 값에 NULL이 있는 경우 NULL 값을 맨 뒤로 정렬한다. 
+         - ASC          : 오름차순 정렬 (ASC, DESC 생략 시 기본값)
+         - DESC         : 내림차순 정렬
+         - NULL FIRST   : 정렬하고자 하는 컬럼 값에 NULL이 있는 경우 NULL 값을 맨 앞으로 정렬한다. 
+         - NULL LAST    : 정렬하고자 하는 컬럼 값에 NULL이 있는 경우 NULL 값을 맨 뒤로 정렬한다. 
             
-         <SELECT문이 실행(해석) 되는 순서>   
-               1. FROM 절
-               2. WHERE 절
-               3. SELECT 절
-               4. ORDER BY 절
+      <SELECT문이 실행(해석) 되는 순서>   
+         1. FROM 절
+         2. WHERE 절
+         3. SELECT 절
+         4. ORDER BY 절
          
 */
+
 
 -- EMPLOYEE 테이블에서 BONUS로 오름차순 정렬
 SELECT
@@ -365,6 +380,7 @@ ORDER BY BONUS ASC; -- 오름차순 정렬은 기본적으로 NULLS LAST
 ORDER BY BONUS NULLS FIRST;
 ORDER BY BONUS ASC NULLS FIRST;
 
+
 -- EMPLOYEE 테이블에서 BONUS로 내림차순 정렬 (단, BONUS 값이 일치할 경우에는 SALARY 가지고 오름차순 정렬)
 SELECT * 
 FROM EMPLOYEE
@@ -372,6 +388,7 @@ FROM EMPLOYEE
 --ORDER BY BONUS DESC NULLS LAST;
 ORDER BY BONUS DESC NULLS LAST,
 SALARY;  -- 정렬 기준 여러 개를 제시할 수 있다.
+
 
 -- EMPLOYEE 테이블에서 연봉별 내림차순으로 정렬된 직원들의 직원명, 연봉 조회
 SELECT
