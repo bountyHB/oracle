@@ -92,3 +92,64 @@ FROM EMPLOYEE
 WHERE DEPT_CODE = 'D5' AND SALARY <= 3000000;
 
 
+/*
+   <GROUPING SET
+      그룹 별로 처리된 여러 개의 SELECT 문을 하나로 합친 결과로 원할 때 사용한다.
+*/
+
+
+-- 부서별 사원의 수
+SELECT DEPT_CODE, COUNT(*)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE;
+
+
+-- 직급별 사원의 수
+SELECT JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+GROUP BY JOB_CODE;
+
+
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+GROUP BY GROUPING SETS (DEPT_CODE, JOB_CODE);
+
+
+-- EMPLOYEE 테이블에서 부서 코드, 직급 코드, 사수 사번이 동일한 사원의 부서 코드, 직급 코드, 사수 사번, 급여 평균을 조회
+SELECT NVL(DEPT_CODE,'부서 없음') AS "부서", 
+       JOB_CODE AS "직급", 
+       NVL(MANAGER_ID,'사번 없음') AS "사수 사번", 
+       TO_CHAR(ROUND(AVG(NVL(SALARY,0))),'L999,999,999') AS "급여 평균"
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, JOB_CODE, MANAGER_ID
+ORDER BY DEPT_CODE;
+
+
+-- EMPLOYEE 테이블에서 부서 코드, 사수 사번이 동일한 사원의 부서 코드, 사수 사번, 급여 평균을 조회
+SELECT NVL(DEPT_CODE,'부서 없음') AS "부서", 
+       NVL(MANAGER_ID,'사번 없음') AS "사수 사번", 
+       TO_CHAR(ROUND(AVG(NVL(SALARY,0))),'L999,999,999') AS "급여 평균"
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, MANAGER_ID
+ORDER BY DEPT_CODE;
+
+
+-- EMPLOYEE 테이블에서 직급 코드, 사수 사번이 동일한 사원의 직급 코드, 사수 사번, 급여 평균을 조회
+SELECT JOB_CODE AS "부서", 
+       NVL(MANAGER_ID,'사번 없음') AS "사수 사번", 
+       TO_CHAR(ROUND(AVG(NVL(SALARY,0))),'L999,999,999') AS "급여 평균"
+FROM EMPLOYEE
+GROUP BY JOB_CODE, MANAGER_ID
+ORDER BY JOB_CODE;
+
+
+-- GROUPING SETS
+
+SELECT NVL(DEPT_CODE,'부서 없음') AS "부서", 
+       JOB_CODE AS "직급", 
+       NVL(MANAGER_ID,'사번 없음') AS "사수 사번", 
+       TO_CHAR(ROUND(AVG(NVL(SALARY,0))),'L999,999,999') AS "급여 평균"
+FROM EMPLOYEE
+GROUP BY GROUPING SETS((DEPT_CODE, JOB_CODE, MANAGER_ID),(DEPT_CODE, MANAGER_ID),(JOB_CODE, MANAGER_ID))
+ORDER BY DEPT_CODE;
+
