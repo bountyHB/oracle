@@ -29,3 +29,4 @@ FROM EMPLOYEE
 -- CUBE(컬럼1, 컬럼2, ...) -> 전달되는 모든 컬럼을 가지고 중간 집계를 내는 함수
 GROUP BY CUBE(JOB_CODE, DEPT_CODE)
 ORDER BY JOB_CODE, DEPT_CODE;
+
