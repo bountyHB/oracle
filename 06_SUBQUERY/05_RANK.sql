@@ -1,0 +1,40 @@
+/*
+   <RANK 함수>      
+      RANK() OVER(정렬 기준) / DENSE_RANK() OVER(정렬 기준)
+*/
+
+
+-- 사원별 급여가 높은 순서대로 순위를 매겨서 순위, 직원명, 급여 조회
+-- RANK() OVER 사용
+-- 공동 19위 2명 뒤에 순위는 21이 나온다
+SELECT RANK() OVER (ORDER BY SALARY DESC) "순위",
+       EMP_NAME, SALARY
+FROM EMPLOYEE;
+
+-- DENSE_RANK() OVER 사용
+-- 공동 19위 2명 뒤에 순위는 20이 나온다
+SELECT DENSE_RANK() OVER (ORDER BY SALARY DESC) "순위",
+       EMP_NAME, SALARY
+FROM EMPLOYEE;
+
+
+-- 상위 5명만 조회
+-- 1) WHERE 사용
+SELECT RANK() OVER (ORDER BY SALARY DESC) "순위",
+       EMP_NAME, SALARY
+FROM EMPLOYEE
+WHERE RANK() OVER (ORDER BY SALARY DESC) <= 5; -- RANK 함수는 WHERE 절에 사용할 수 없다.
+
+-- 2) INLINE-VIEW 사용
+SELECT RANK() OVER (ORDER BY SALARY DESC) "순위",
+       EMP_NAME, SALARY
+FROM EMPLOYEE
+WHERE RANK() OVER (ORDER BY SALARY DESC) <= 5;
+
+SELECT "순위", EMP_NAME, SALARY
+FROM (
+      SELECT RANK() OVER (ORDER BY SALARY DESC) "순위",
+             EMP_NAME, SALARY
+      FROM EMPLOYEE
+)
+WHERE "순위" <= 5;
