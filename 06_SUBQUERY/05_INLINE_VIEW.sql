@@ -22,6 +22,35 @@ FROM (
 ) A -- 별칭 지정
 WHERE ROWNUM <= 5;
 
+-- FROM절 외부에서 별칭을 지정한 경우, 별칭을 생략해도 문제가 없다
+SELECT ROWNUM, EMP_NAME, SALARY
+FROM (
+      SELECT *
+      FROM EMPLOYEE
+      ORDER BY SALARY DESC
+) A -- 별칭 지정
+WHERE ROWNUM <= 5;
+
+-- FROM절 내부에서 별칭을 지정한 경우, 컬럼명으로 불러오면 오류가 난다.
+SELECT ROWNUM, EMP_NAME, SALARY
+FROM (
+      SELECT EMP_NAME "이름", 
+             SALARY "급여"
+      FROM EMPLOYEE
+      ORDER BY SALARY DESC
+)
+WHERE ROWNUM <= 5;
+
+-- FROM절 내부에서 별칭을 지정한 경우, 별칭으로 불러오면 오류가 나지 않는다.
+SELECT ROWNUM, "이름", "급여"
+FROM (
+      SELECT EMP_NAME "이름", 
+             SALARY "급여"
+      FROM EMPLOYEE
+      ORDER BY SALARY DESC
+)
+WHERE ROWNUM <= 5;
+
 
 -- 2. 인라인 뷰를 활용한 TOP-N 분석 (GROUP BY)
 -- 부서별 평균 급여가 높은 3개의 부서의 부서 코드, 평균 급여를 조회
@@ -45,11 +74,22 @@ FROM (
 WHERE ROWNUM <= 3;
 
 -- 쌤
+-- 함수를 사용하는 구문이나 연산식이 컬럼에 들어가면 반드시 별칭을 붙여야 에러가 나지 않는다.
 -- 별칭을 사용하지 않으면, 컬럼명이 아니라 함수 실행이라고 인식을 한다.
--- 함수사용하는 구문이나 연산식이 컬럼에 들어가면 반드시 별칭을 붙여야 에러가 나지 않는다.
 SELECT ROWNUM AS "순위", 부서코드, ROUND(평균급여)
 FROM (
       SELECT NVL(DEPT_CODE,'부서없음') AS "부서코드", 
+             AVG(NVL(SALARY,0)) "평균급여"
+      FROM EMPLOYEE
+      GROUP BY DEPT_CODE
+      ORDER BY "평균급여" DESC
+)
+WHERE ROWNUM <= 3;
+
+-- 별칭을 붙이지 않은 식은 컬럼명으로 가져올 수 있다
+SELECT ROWNUM AS "순위", DEPT_CODE, ROUND(평균급여)
+FROM (
+      SELECT DEPT_CODE, 
              AVG(NVL(SALARY,0)) "평균급여"
       FROM EMPLOYEE
       GROUP BY DEPT_CODE
