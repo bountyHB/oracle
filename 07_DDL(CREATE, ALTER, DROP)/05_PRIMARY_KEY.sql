@@ -1,0 +1,99 @@
+/*
+   4. PRIMARY KEY(기본 키) 제약조건
+      - 테이블에서 한 행의 정보를 식별하기 위해 사용할 컬럼에 부여하는 제약조건이다.
+      - 기본 키 제약조건을 설정하게 되면 자동으로 해당 컬럼에 NOT NULL, UNIQUE 제약조건이 설정된다.
+      - 한 테이블에 한 개만 설정할 수 있다. (단, 한 개 이상의 컬럼을 묶어서 기본 키 제약조건을 설정할 수 있다.)
+
+      - ID나 주민번호같이 비즈니스 로직에 영향을 주는 키들은 자연키라고 한다.
+      - NO같이 비즈니스 로직에 영향을 주지 않는 키들을 대리키, 대체키라고 한다.
+      - 주로 비즈니스와 관련없는 숫자값 (대리키)를 기본키로 사용한다.
+*/
+
+
+-- (1) 테이블 생성 (PRIMARY KEY)
+DROP TABLE MEMBER;
+
+CREATE TABLE MEMBER (
+   NO NUMBER,
+-- NO NUMBER PRIMARY KEY, -- 컬럼 레벨로 지정
+   ID VARCHAR2(20) NOT NULL,
+   PASSWORD VARCHAR2(20) NOT NULL,
+   NAME VARCHAR2(15) NOT NULL,
+   GENDER CHAR(3),
+   AGE NUMBER,
+   ENROLL_DATE DATE DEFAULT SYSDATE,
+   CONSTRAINT MEMBER_NO_PK PRIMARY KEY(NO), -- 테이블 레벨로 지정
+   CONSTRAINT MEMBER_ID_UQ UNIQUE(ID),
+   CONSTRAINT MEMBER_GENGER_CK CHECK(GENDER IN ('남','여')),
+   CONSTRAINT MEMBER_AGE_CH CHECK(AGE > 0)
+);
+
+INSERT INTO MEMBER VALUES(1, 'USER1', '1234', '김삿갓', '남', 24, DEFAULT);
+INSERT INTO MEMBER VALUES(2, 'USER2', '1234', '성춘향', '여', 18, DEFAULT);
+INSERT INTO MEMBER VALUES(3, 'USER3', '1234', '홍길동', '남', 30, DEFAULT);
+INSERT INTO MEMBER VALUES(4, 'USER4', '1234', '이몽룡', '남', 20, DEFAULT);
+-- 기본 키 중복으로 오류
+INSERT INTO MEMBER VALUES(4, 'USER5', '1234', '심청이', '여', 16, DEFAULT);
+-- 기본 키가 NULL 이므로 오류
+INSERT INTO MEMBER VALUES(NULL, 'USER5', '1234', '심청이', '여', 16, DEFAULT);
+
+-- 제약조건 확인
+SELECT UC.CONSTRAINT_NAME, 
+       UC.TABLE_NAME, 
+       UCC.COLUMN_NAME, 
+       UC.CONSTRAINT_TYPE,
+       UC.SEARCH_CONDITION
+FROM USER_CONSTRAINTS UC
+JOIN USER_CONS_COLUMNS UCC ON (UC.CONSTRAINT_NAME = UCC.CONSTRAINT_NAME)
+WHERE UC.TABLE_NAME = 'MEMBER';
+
+
+-- (2) 테이블 생성 (PRIMARY KEY)
+-- 테이블 키를 두번 적용하면 오류가 난다.
+DROP TABLE MEMBER;
+
+CREATE TABLE MEMBER (
+-- NO NUMBER,
+   NO NUMBER PRIMARY KEY, -- 컬럼 레벨로 지정
+   ID VARCHAR2(20) NOT NULL,
+   PASSWORD VARCHAR2(20) NOT NULL,
+   NAME VARCHAR2(15) NOT NULL,
+   GENDER CHAR(3),
+   AGE NUMBER,
+   ENROLL_DATE DATE DEFAULT SYSDATE,
+   CONSTRAINT MEMBER_NO_PK PRIMARY KEY(NO), -- 테이블 레벨로 지정
+   CONSTRAINT MEMBER_ID_UQ UNIQUE(ID),
+   CONSTRAINT MEMBER_GENGER_CK CHECK(GENDER IN ('남','여')),
+   CONSTRAINT MEMBER_AGE_CH CHECK(AGE > 0)
+);
+
+
+-- (3) 테이블 생성 (PRIMARY KEY)
+-- 컬럼을 묶어서 하나의 기본 키를 생성 (복합키)
+-- (NO, ID를 묶음)
+DROP TABLE MEMBER;
+
+CREATE TABLE MEMBER (
+   NO NUMBER,
+   ID VARCHAR2(20),
+   PASSWORD VARCHAR2(20) NOT NULL,
+   NAME VARCHAR2(15) NOT NULL,
+   GENDER CHAR(3),
+   AGE NUMBER,
+   ENROLL_DATE DATE DEFAULT SYSDATE,
+   CONSTRAINT MEMBER_NO_ID_PK PRIMARY KEY(NO, ID), -- 테이블 레벨로 묶어서 지정
+   CONSTRAINT MEMBER_ID_UQ UNIQUE(ID),
+   CONSTRAINT MEMBER_GENGER_CK CHECK(GENDER IN ('남','여')),
+   CONSTRAINT MEMBER_AGE_CH CHECK(AGE > 0)
+);
+
+INSERT INTO MEMBER VALUES(1, 'USER1', '1234', '김삿갓', '남', 24, DEFAULT);
+INSERT INTO MEMBER VALUES(2, 'USER2', '1234', '성춘향', '여', 18, DEFAULT);
+INSERT INTO MEMBER VALUES(3, 'USER3', '1234', '홍길동', '남', 30, DEFAULT);
+INSERT INTO MEMBER VALUES(4, 'USER4', '1234', '이몽룡', '남', 20, DEFAULT);
+INSERT INTO MEMBER VALUES(4, 'USER5', '1234', '심청이', '여', 16, DEFAULT);
+-- 회원번호, 아이디가 세트로 동일한 값이 이미 존재하기 때문에 에러가 발생한다.
+INSERT INTO MEMBER VALUES(4, 'USER5', '1234', '심청이', '여', 16, DEFAULT);
+-- 기본 키로 설정된 컬럼에 둘 중에 NULL 값이 하나라도 있으면 에러가 발생한다. 
+INSERT INTO MEMBER VALUES(NULL, 'USER5', '1234', '심청이', '여', 16, DEFAULT);
+INSERT INTO MEMBER VALUES(5, NULL, '1234', '심청이', '여', 16, DEFAULT);
