@@ -1,0 +1,70 @@
+/*
+   <DELETE>
+      테이블에 기록 된 데이터를 삭제하는 구문이다. (행 단위)
+*/
+
+SELECT * FROM DEPT_COPY;
+SELECT * FROM EMP_SALARY;
+
+-- EMP_SALARY 테이블에서 선동일 사장의 데이터를 지우기
+--SELECT*
+DELETE 
+FROM EMP_SALARY
+WHERE EMP_ID = 200;
+
+-- 삭제 확정 (커밋)
+COMMIT;
+
+-- 삭제된 것 확인
+SELECT * 
+FROM EMP_SALARY
+WHERE EMP_ID = 200;
+
+-- EMP_SALARY 테이블에서 DEPT_CODE가 D5인 직원들을 삭제
+--SELECT *
+DELETE 
+FROM EMP_SALARY
+WHERE DEPT_CODE = 'D5';
+
+-- 삭제 되돌리기 (롤백)
+ROLLBACK;
+
+-- 돌아온 것 확인
+SELECT *
+FROM EMP_SALARY
+WHERE DEPT_CODE = 'D5';
+
+
+/*
+   <TRUNCATE>
+      테이블의 전체 행을 삭제할 때 사용하는 구문이다.
+      DELETE보다 수행 속도가 더 빠르다.
+      별도의 조건을 제시할 수 없고 ROLLBACK이 불가능하다.
+*/
+
+
+-- TRUNCATE 사용시
+DELETE FROM DEPT_COPY;
+DELETE FROM EMP_SALARY;
+
+-- 롤백
+ROLLBACK;
+
+-- 돌아온 것 확인
+SELECT * FROM DEPT_COPY;
+SELECT * FROM EMP_SALARY;
+
+
+-- TRUNCATE 사용시
+TRUNCATE TABLE DEPT_COPY;
+TRUNCATE TABLE EMP_SALARY;
+
+-- 롤백
+ROLLBACK;
+
+-- 돌아오지 않음
+SELECT * FROM DEPT_COPY;
+SELECT * FROM EMP_SALARY;
+
+DROP TABLE DEPT_COPY;
+DROP TABLE EMP_SALARY;
