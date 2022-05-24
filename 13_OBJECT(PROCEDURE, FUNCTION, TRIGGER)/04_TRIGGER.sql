@@ -1,0 +1,202 @@
+/*
+   <TRIGGER>
+      테이블이 DML(INSERT, UPDATE, DELETE) 구문에 의해 변경될 경우(테이블에 이벤트 발생 시)
+      자동으로 실행될 내용을 정의해놓는 객체이다.
+*/
+
+
+-- STATEMENT TRIGGER
+-- EMPLOYEE 테이블에 새로운 행이 INSERT 될 때, '신입사원이 입사했습니다.' 메시지를 자동으로 출력하는 트리거를 생성
+CREATE TRIGGER TRG_01
+AFTER INSERT ON EMPLOYEE
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('신입사원이 입사했습니다.');
+END;
+/
+
+-- EMPLOYEE 테이블에 새로운 사원을 INSERT 하기
+INSERT INTO EMPLOYEE(EMP_ID, EMP_NAME, EMP_NO) VALUES(SEQ_EMPID.NEXTVAL, '김삿갓', '030424-1234567');
+INSERT INTO EMPLOYEE(EMP_ID, EMP_NAME, EMP_NO) VALUES(SEQ_EMPID.NEXTVAL, '홍길동', '050524-1234567');
+
+-- EMPLOYEE 테이블에 UPDATE 수행 후, '업데이트 실행' 메시지를 자동으로 출력하는 트리거를 생성
+CREATE TRIGGER TRG_02
+AFTER UPDATE ON EMPLOYEE
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('업데이트 실행');
+END;
+/
+
+-- EMPLOYEE 테이블에 부서 코드가 D9인 직원들의 부서 코드를 D3로 변경
+-- 구문은 총 3번 실행되지만, 트리거는 한번만 실행된다. 
+UPDATE EMPLOYEE
+SET DEPT_CODE = 'D3'
+WHERE DEPT_CODE = 'D9';
+
+ROLLBACK;
+
+
+/*
+   ROW TRIGGER
+      트리거 생성 구문에 FOR EACH LOW 옵션을 기술해야 한다.
+      > :OLD  : 수정, 삭제 전 데이터에 접근 가능 
+      > :NEW  : 입력, 수정 후 데이터에 접근 가능
+*/
+
+
+-- STATEMENT TRIGGER + FOR EACH ROW
+CREATE OR REPLACE TRIGGER TRG_02
+AFTER UPDATE ON EMPLOYEE
+FOR EACH ROW -- 행 트리거 추가
+BEGIN
+   DBMS_OUTPUT.PUT_LINE('업데이트 실행');
+   DBMS_OUTPUT.PUT_LINE('변경 전 : '||:OLD.DEPT_CODE||' 변경 후 : '||:NEW.DEPT_CODE);
+END;
+/
+
+-- 트리거 구문이 총 3번씩 실행된다.
+UPDATE EMPLOYEE
+SET DEPT_CODE = 'D3'
+WHERE DEPT_CODE = 'D9';
+
+ROLLBACK;
+
+SELECT * FROM EMPLOYEE;
+
+-- 상품 입/출고 관련 예시
+-- 필요한 테이블 / 시퀀스 생성
+
+-- 1. 상품에 대한 데이터를 보관할 테이블 (TB_PRODUCT)
+CREATE TABLE TB_PRODUCT (
+   PCODE NUMBER,          -- 상품코드
+   PNAME VARCHAR2(150),   -- 상품명
+   BRAND VARCHAR2(100),   -- 브랜드명
+   PRICE NUMBER,          -- 가격
+   STOCK NUMBER DEFAULT 0, -- 재고
+   CONSTRAINT TB_PRODUCT_PCODE_PK PRIMARY KEY(PCODE)
+);
+
+-- 상품코드(PK)가 중복되지 않게 호출시마다 새로운 번호를 발생하는 시퀀스 생성
+CREATE SEQUENCE SEQ_PCODE;
+
+-- 데이터 입력
+INSERT INTO TB_PRODUCT VALUES (SEQ_PCODE.NEXTVAL, '갤럭시 S10', '삼성', 1000000, DEFAULT);
+INSERT INTO TB_PRODUCT VALUES (SEQ_PCODE.NEXTVAL, '갤럭시 노트 20 울트라', '삼성', 1500000, DEFAULT);
+INSERT INTO TB_PRODUCT VALUES (SEQ_PCODE.NEXTVAL, '아이폰 12', '애플', 950000, DEFAULT);
+
+-- 테이블 확인
+SELECT * FROM TB_PRODUCT;
+
+-- 2. 상품 입/출고 상세 이력 테이블 생성 (TB_PRODETAIL)
+CREATE TABLE TB_PRODETAIL (
+   DCODE NUMBER,               -- 입출고 이력 코드
+   PCODE NUMBER,               -- 상품코드 (외래 키로 지정 TB_PRODUCT 테이블을 참조)
+   AMOUNT NUMBER,              -- 수량
+   STATUS VARCHAR2(10),        -- 상태 (입고/출고)
+   DDATE DATE DEFAULT SYSDATE, -- 상품 입/출고 일자
+   CONSTRAINT TB_PRODETAIL_DCODE_PK PRIMARY KEY(DCODE),
+   CONSTRAINT TB_PRODETAIL_PCODE_FK FOREIGN KEY(PCODE) REFERENCES TB_PRODUCT,
+   CONSTRAINT TB_PRODETAIL_STATUS CHECK(STATUS IN('입고','출고'))
+);
+
+SELECT * FROM TB_PRODETAIL;
+
+-- 입출고 이력 코드가 중복되지 않게 새로운 번호를 발생하는 시퀀스 생성
+CREATE SEQUENCE SEQ_DCODE;
+
+-- 1번 상품이 어제 날짜로 10개 입고
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 1, 10, '입고', SYSDATE - 1);
+-- 재고 수량도 변경해주어야 한다.
+UPDATE TB_PRODUCT 
+SET STOCK = STOCK + 10 -- 기존의 재고에다가 10을 더한 만큼
+WHERE PCODE = 1;
+-- 재고 변경된 것 확인
+SELECT * FROM TB_PRODETAIL;
+SELECT * FROM TB_PRODUCT;
+
+-- 2번 상품이 오늘 날짜로 20개 입고
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 2, 20, '입고', SYSDATE);
+
+UPDATE TB_PRODUCT 
+SET STOCK = STOCK + 20 
+WHERE PCODE = 2;
+
+-- 3번 상품이 오늘 날짜로  5개 입고
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 3, 5, '입고', DEFAULT);
+
+UPDATE TB_PRODUCT 
+SET STOCK = STOCK + 5
+WHERE PCODE = 3;
+
+-- 2번 상품이 오늘 날짜로  5개 출고
+-- DATE를 생략해도 DEFAULT가 SYSDATE로 되어있어 자동으로 추가된다.
+INSERT INTO TB_PRODETAIL(DCODE, PCODE, AMOUNT, STATUS) VALUES (SEQ_DCODE.NEXTVAL, 2, 5, '출고');
+
+UPDATE TB_PRODUCT 
+SET STOCK = STOCK - 5
+WHERE PCODE = 2;
+
+SELECT * FROM TB_PRODUCT;
+SELECT * FROM TB_PRODETAIL;
+
+COMMIT;
+
+-- TB_PRODETAIL 테이블에 데이터 삽입 시 TB_PRODUCT 테이블에 재고 수량이 자동으로 업데이트 되도록 트리거를 생성
+CREATE TRIGGER TRG_PRO_STOCK
+AFTER INSERT ON TB_PRODETAIL
+FOR EACH ROW
+BEGIN
+   DBMS_OUTPUT.PUT_LINE(:NEW.PCODE ||''||:NEW.STATUS||''||:NEW.AMOUNT);
+END;
+/
+
+-- 입고를 작성해본다.
+-- 트리거가 출력된다 --3입고5
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 3, 5, '입고', DEFAULT);
+
+-- 출고를 작성해본다.
+-- 트리거가 출력된다 --2입고5
+INSERT INTO TB_PRODETAIL(DCODE, PCODE, AMOUNT, STATUS) VALUES (SEQ_DCODE.NEXTVAL, 2, 5, '출고');
+
+-- 테이블 확인
+SELECT * FROM TB_PRODUCT;
+SELECT * FROM TB_PRODETAIL;
+
+ROLLBACK;
+
+-- 조건문을 넣어 트리거를 생성
+CREATE OR REPLACE TRIGGER TRG_PRO_STOCK
+AFTER INSERT ON TB_PRODETAIL
+FOR EACH ROW
+BEGIN
+   DBMS_OUTPUT.PUT_LINE(:NEW.PCODE ||''||:NEW.STATUS||''||:NEW.AMOUNT);
+   
+   -- 상품이 입고된 경우
+   IF (:NEW.STATUS = '입고') THEN
+      UPDATE TB_PRODUCT
+      SET STOCK = STOCK + :NEW.AMOUNT
+      WHERE PCODE = :NEW.PCODE;
+   END IF;
+   -- 상품이 출고된 경우
+   IF (:NEW.STATUS = '출고') THEN
+      UPDATE TB_PRODUCT
+      SET STOCK = STOCK - :NEW.AMOUNT
+      WHERE PCODE = :NEW.PCODE;
+   END IF;
+--   트리거에서는 TCL 구문이 포함될 수 없다.
+--   COMMIT;
+--   ROLLBACK;
+   
+END;
+/
+
+-- 2번 상품이 오늘 날짜로 20개 입고
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 2, 20, '입고', SYSDATE);
+
+-- 2번 상품이 오늘 날짜로 28개 출고
+INSERT INTO TB_PRODETAIL VALUES (SEQ_DCODE.NEXTVAL, 2, 28, '출고', SYSDATE);
+
+-- 테이블 확인
+SELECT * FROM TB_PRODUCT;
+SELECT * FROM TB_PRODETAIL;
+
+ROLLBACK;
