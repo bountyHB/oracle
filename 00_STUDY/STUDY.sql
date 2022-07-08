@@ -299,14 +299,3 @@ FROM TB_DEPARTMENT;
 
 SELECT *
 FROM TB_CLASS;
-
-
-
-
-
-
-
-
-
-
-
